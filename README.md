@@ -1,7 +1,7 @@
 # su_doh
 Script for owning a system that runs sudo, project is a working basis for a metasploit module to do the same
 
-
+```
 usage: su_doh.py [-h] [-b] [-i] [-d] [-p P] [--payload PAYLOAD] [-f F]
 
 A script to take advantage of Sudo
@@ -18,7 +18,7 @@ optional arguments:
   --payload PAYLOAD  location of payload on disk to run
   -f F               optional name for file created in sudoers.d from payload
                      created by -d
-
+```
 The program generates a default payload to turn off tty tickets, this will enable a sudo session to escape the 
 jailed terminal a user ran the sudo command in.  Next the payload will turn off the timeout limits that sudo can 
 be run as long as they would like without a password
