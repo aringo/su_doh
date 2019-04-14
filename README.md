@@ -29,12 +29,18 @@ There is currently two modes the script runs in.
 
     Backdoor - the users .bashrc so that the next time they run sudo it runs the payload as root.
 
-If injection is selected the script will run a ptrace check to see if the system allows users to ptrace their own processes. 
-
+### Injection mode 
+If injection mode is selected the script will run a ptrace check to see if the system allows users to ptrace their own processes. 
+```
 On systems with yama ptrace /proc/sys/kernel/yama/ptrace_scope must be 0 
 On systems with selinux deny_ptrace must be not on 
+```
+Next it will try to inject into a given pid.  If no pid is given the program will attempt to inject in all processes that meet a regex of a shell.
 
-Next it will try to inject into the given pid.  If no pid is given the program will attempt to inject in all processes.
+There is a risk of causing a sudo password error if the processes have not run a password session. 
+
+### Backdoor mode 
+If backdoor mode is selected the script will simply add a line to the users bashrc so the next time they run sudo the payload is executed. If the user action may be after a reboot the default payload directory should be changed to something that will persist.    
 
 
 
