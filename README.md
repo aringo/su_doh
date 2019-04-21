@@ -1,5 +1,5 @@
 # su_doh
-Script for owning a system that runs sudo, project is a working basis for a metasploit module to do the same
+Script for owning a system that runs sudo
 
 ```
 usage: su_doh.py [-h] [-b] [-i] [-d] [-p P] [--payload PAYLOAD] [-f F]
